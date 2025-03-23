@@ -1,0 +1,35 @@
+# Build Folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.vs
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# Dependency Caches
+packages/
+.nuget/
+
+# Configuration
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# Visual Studio related
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.idea/
+*.iml
+
+# Other
+*.DS_Store
+Thumbs.db

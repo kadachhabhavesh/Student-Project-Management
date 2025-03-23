@@ -1,0 +1,63 @@
+﻿@model StudentProjectManagement.Areas.Faculty.Models.Evaluation
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = "~/Areas/Faculty/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="card card-default p-5">
+        <h2 class="mb-5 text-center">ADD Evaluation</h2>
+        <form asp-action="SaveProjectEvalution" method="post">
+            <div class="">
+                <input type="hidden" asp-for="EvaluationId" />
+
+                <div class="form-group row">
+                    <div class="col-md-5 mb-3">
+                        <label asp-for="ProjectId" class="form-label">Project<span class="text-danger">*</span></label>
+                        <select asp-for="ProjectId" class="form-control" id="projectDropdown">
+                            <option value="">Select Project</option>
+                            @foreach (var project in ViewBag.projectList)
+                            {
+                                <option value="@project["projectId"]">@project["title"]</option>
+                            }
+                        </select>
+                        @* <input asp-for="ProjectId" class="form-control" placeholder="Project ID" /> *@
+                        <span asp-validation-for="ProjectId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label asp-for="FacultyId" class="form-label">Evaluator<span class="text-danger">*</span></label>
+                        @* <input asp-for="FacultyId" class="form-control" placeholder="Faculty ID" /> *@
+                        <select asp-for="FacultyId" class="form-control" id="projectDropdown" disabled>
+                            <option value="">Select Project</option>
+                            @foreach (var project in ViewBag.mentorDropDown)
+                            {
+                                @if (HttpContextAccessor.HttpContext.Session.GetString("UserId") == project["userId"].ToString())
+                                {
+                                    <option value="@project["mentorId"]" selected>@project["name"]</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="FacultyId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label asp-for="Score" class="form-label">Score<span class="text-danger">*</span></label>
+                        <input asp-for="Score" type="number" step="0.1" class="form-control" placeholder="Score" />
+                        <span asp-validation-for="Score" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-12 mb-3">
+                        <label asp-for="Feedback" class="form-label">Feedback<span class="text-danger">*</span></label>
+                        <textarea asp-for="Feedback" class="form-control" rows="3" placeholder="Enter feedback"></textarea>
+                        <span asp-validation-for="Feedback" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex g-2">
+                <button class="btn btn-primary btn-pill mr-2" type="submit">Submit</button>
+                <a asp-action="ProjectsEvaluationsList" class="btn btn-danger btn-pill mr-2" type="submit">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

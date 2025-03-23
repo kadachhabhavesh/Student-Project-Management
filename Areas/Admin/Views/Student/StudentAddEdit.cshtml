@@ -1,0 +1,75 @@
+﻿@model StudentProjectManagement.Areas.Admin.Models.Student
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="card card-default p-5">
+        <h2 class="mb-5 text-center">ADD Student</h2>
+        <form asp-action="SaveStudent" method="post">
+            <div class="">
+                <input type="hidden" asp-for="StudentId" />
+                <input type="hidden" asp-for="User.UserId" />
+
+                <div class="form-group row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.FirstName" class="form-label">First Name<span class="text-danger">*</span></label>
+                        <input asp-for="User.FirstName" class="form-control" placeholder="First name" />
+                        <span asp-validation-for="User.FirstName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.LastName" class="form-label">Last Name<span class="text-danger">*</span></label>
+                        <input asp-for="User.LastName" class="form-control" placeholder="Last name" />
+                        <span asp-validation-for="User.LastName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.Email" class="form-label">Email<span class="text-danger">*</span></label>
+                        <input asp-for="User.Email" type="email" class="form-control" placeholder="Email" />
+                        <span asp-validation-for="User.Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.Department" class="form-label">Department<span class="text-danger">*</span></label>
+                        <input asp-for="User.Department" type="text" class="form-control" placeholder="Department" />
+                        <span asp-validation-for="User.Department" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="EnrollmentNo" class="form-label">Enrollment No<span class="text-danger">*</span></label>
+                        <input asp-for="EnrollmentNo" class="form-control" placeholder="Enrollment No" />
+                        <span asp-validation-for="EnrollmentNo" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="User.PasswordHash" class="form-label">Password<span class="text-danger">*</span></label>
+                        <input asp-for="User.PasswordHash" type="text" class="form-control" placeholder="Password" />
+                        <span asp-validation-for="User.PasswordHash" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="User.Role" class="form-label">Role<span class="text-danger">*</span></label>
+                            <select asp-for="User.Role" class="form-control">
+                                <option value="student" selected>Student</option>
+                                @if (Model != null && Model.StudentId != 0)
+                                {
+                                    <option value="faculty">Faculty</option>
+                                }
+                        </select>
+                            <span asp-validation-for="User.Role" class="text-danger"></span>
+                        </div>
+                    
+                </div>
+            </div>
+            <div class="d-flex g-2">
+                <button class="btn btn-primary btn-pill mr-2" type="submit">Submit</button>
+                <a asp-action="StudentsList" class="btn btn-danger btn-pill mr-2" type="submit">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

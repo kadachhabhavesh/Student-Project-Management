@@ -1,0 +1,143 @@
+﻿@{
+    Layout = "~/Areas/Faculty/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-checkbox-marked-outline"></i> @Html.Raw(TempData["Message"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-alert"></i>@Html.Raw(TempData["Error"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+
+    <div class="card card-default">
+        <div class="card-header align-items-center">
+            <h2 class="">Students</h2>
+        </div>
+        <div class="row px-5 d-flex justify-content-between">
+            <div class="col-4">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search..." onkeyup="searchTable()">
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center" style="gap: 10px;">
+                <a asp-action="StudentAddEdit"><button type="button" class="mb-1 btn btn-info">Add Student</button></a>
+                <button type="button" class="mb-1 btn btn-success" data-toggle="modal" data-target="#exampleModalTooltip">Import Excel</button>
+                <div class="modal fade" id="exampleModalTooltip" tabindex="-1" role="dialog" aria-labelledby="exampleModalTooltip"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle2">Important</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Content
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-pill" data-dismiss="modal">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="table-responsive">
+                    @if (ViewBag.StudentList == null || ViewBag.Error != null)
+                    {
+                        <h3 class="text-center p-3">Students Not Available <a asp-action="StudentAddEdit">Add Students</a></h3>
+                    }
+                    else
+                    {
+                        <table id="studentTable" class="table table-product" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>First Name</th>
+                                    <th>Last Name</th>
+                                    <th>Email</th>
+                                    <th>Password</th>
+                                    <th>Department</th>
+                                    <th>Enrollment No</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (var student in ViewBag.StudentList)
+                                {
+                                    <tr>
+                                        <td>@student["user"]["firstName"]</td>
+                                        <td>@student["user"]["lastName"]</td>
+                                        <td>@student["user"]["email"]</td>
+                                        <td>@student["user"]["passwordHash"]</td>
+                                        <td>@student["user"]["department"]</td>
+                                        <td>@student["enrollmentNo"]</td>
+                                        <td>
+                                            <span class="badge badge-danger" type="button" data-toggle="modal" data-target="#@student["studentId"]"><span style="font-size:15px;" class="mdi mdi-delete"></span></span>
+                                            <a asp-action="StudentAddEdit" asp-route-studentId=@student["studentId"]><span class="badge badge-warning" type="button"><span style="font-size:15px;" class="mdi mdi-pencil"></span></span></a>
+                                            <a asp-action="StudentProfile" asp-route-studentId=@student["studentId"]><span class="badge badge-success" type="button"><span style="font-size:15px;" class="mdi mdi-eye"></span></span></a>
+                                            <div class="modal fade" id=@student["studentId"] tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                 aria-hidden="true">
+                                                <div class="modal-dialog m-" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLabel">@student["studentId"]</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">×</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            Are You Sure You Want To Delete Student?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-danger btn-pill" data-dismiss="modal">No</button>
+                                                            <a type="button" class="btn btn-primary btn-pill" asp-action="StudentDelete" asp-route-studentId=@student["studentId"]>Yes</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function searchTable() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let rows = document.querySelectorAll("#studentTable tbody tr");
+
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(input) ? "" : "none";
+        });
+    }
+</script>

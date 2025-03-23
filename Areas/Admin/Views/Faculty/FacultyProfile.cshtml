@@ -1,0 +1,204 @@
+﻿@using Newtonsoft.Json.Linq;
+
+ @if (ViewBag.profile == null)
+ {
+     <h2 class="text-center">Student Not Available</h2>
+ }
+ else
+ {
+    <div class="content row">
+        <div class="profile-card card card-default col-3 px-2 py-4 d-flex align-items-center h-m">
+            <div class="profile">
+                BK
+            </div>
+            <div class="item my-1 mt-2">
+                <span>Name</span>
+                <span>@ViewBag.profile["faculty"]["user"]["firstName"] @ViewBag.profile["faculty"]["user"]["lastName"]</span>
+            </div>
+            <div class="item my-1 mt-2">
+                <span>Designation</span>
+                <span>@ViewBag.profile["faculty"]["designation"]</span>
+            </div>
+            <div class="item my-1">
+                <span>Email</span>
+                <span>@ViewBag.profile["faculty"]["user"]["email"]</span>
+            </div>
+            <div class="item my-1">
+                <span>Department</span>
+                <span>@ViewBag.profile["faculty"]["user"]["department"]</span>
+            </div>
+        </div>
+        <div class="card card-default col-9 p-3">
+            <div class="accordion accordion-shadow" id="accordionShadow">
+                @if (ViewBag.profile["project"] != null)
+                {
+                    @foreach (var project in ViewBag.profile["project"])
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseShadowOne"
+                                            aria-expanded="true" aria-controls="collapseShadowOne">
+                                        @project["title"]
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapseShadowOne" class="collapse show" aria-labelledby="headingShadowOne" data-parent="">
+                                <div class="card-body">
+                                    <div>
+                                        <h3 class="mb-2">@project["title"]</h3>
+                                        <p>@project["description"]</p>
+                                        <div class="row g-5">
+                                            <div class="form-control col m-2">
+                                                Start Date : @project["startDate"]
+                                            </div>
+                                            <div class="form-control col m-2">
+                                                End Date : @project["endDate"]
+                                            </div>
+                                            <div class="form-control col m-2">
+                                                Mentor : @project["mentor"]
+                                            </div>
+                                            <div class="form-control col m-2">
+                                                Status : &nbsp;&nbsp;
+                                                @if (@project["status"] == "Completed")
+                                                {
+                                                    <span> <span class="badge badge-success">Completed</span></span>
+                                                }
+                                                else if (@project["status"] == "Active")
+                                                {
+                                                    <span><span class="badge badge-primary">Active</span></span>
+                                                }
+                                                else
+                                                {
+                                                    <span><span class="badge badge-warning">Pending</span></span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <h5 class="py-1 mt-3">Other team members</h5>
+                                        @if (@project["members"] != null && @project["members"].Count > 0)
+                                        {
+                                                <table class="w-100">
+                                                    <tr>
+                                                        <th class="border border-1 p-1 text-center">Enrollment No</th>
+                                                        <th class="border border-1 p-1 text-center">Name</th>
+                                                        <th class="border border-1 p-1 text-center">Email</th>
+                                                        <th class="border border-1 p-1 text-center"></th>
+                                                    </tr>
+                                                    @foreach (var member in @project["members"])
+                                                    {
+                                                        <tr>
+                                                            <td class="border border-1 p-1">@member["enrollmentNo"]</td>
+                                                            <td class="border border-1 p-1">@member["name"]</td>
+                                                            <td class="border border-1 p-1">@member["email"]</td>
+                                                            <td class="border border-1 p-1 text-center" title="View Profile">
+                                                                <a asp-controller="Student" asp-action="StudentProfile" asp-route-studentId=@member["studentId"]><span class="mdi mdi-account-details" role="button"></span></a>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                </table>
+                                        }
+                                        else
+                                        {
+                                            <h4>Team members not available</h4>
+                                        }
+                                    </div>
+
+                                    <div>
+                                        <h5 class="py-1 mt-3">Project Evaluations</h5>
+                                        @if (@project["projectEvaluations"] != null && @project["projectEvaluations"].Count > 0)
+                                        {
+                                            <table class="w-100">
+                                                <tr>
+                                                    <th class="border border-1 p-1 text-center">Evaluation by</th>
+                                                    <th class="border border-1 p-1 text-center">Feedback</th>
+                                                    <th class="border border-1 p-1 text-center">Date</th>
+                                                    <th class="border border-1 p-1 text-center">Score</th>
+                                                </tr>
+                                                @foreach (var evaluation in @project["projectEvaluations"])
+                                                {
+                                                    <tr>
+                                                        <td class="border border-1 p-1">@evaluation["mentor"]</td>
+                                                        <td class="border border-1 p-1">@evaluation["feedback"]</td>
+                                                        <td class="border border-1 p-1">25/1/25</td>
+                                                        <td class="border border-1 p-1 text-center">@evaluation["score"]</td>
+                                                    </tr>
+                                                }
+                                            </table>
+                                        }
+                                        else
+                                        {
+                                            <h4>Team members not available</h4>
+                                        }
+                                    </div>
+
+                                    <div>
+                                        <h5 class="py-1 mt-3">Menmbers Evaluations</h5>
+                                        <div class="accordion" id="accordionTwo">
+                                            @if (@project["members"] != null && @project["members"].Count > 0)
+                                            {
+                                                @foreach (var memEva in @project["membersEvaluations"])
+                                                {
+                                                    <div class="card">
+                                                        <div class="card-header" id="headingBorderOne">
+                                                            <h2 class="mb-0">
+                                                                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#@project["projectId"]@memEva["studentId"]"
+                                                                        aria-expanded="true" aria-controls="collapseBorderOne">
+                                                                    @memEva["enrollmentNo"] - @memEva["name"]
+                                                                </button>
+                                                            </h2> 
+                                                        </div>
+                                                        <div id=@project["projectId"]@memEva["studentId"] class="collapse show" aria-labelledby="headingBorderOne" data-parent="#accordionTwo">
+                                                            <div class="card-body p-1">
+                                                                @if (memEva["evaluations"] != null && memEva["evaluations"].Count > 0)
+                                                                {
+                                                                    <table width="100%">
+                                                                        <tr>
+                                                                            <th class="border p-1 text-center">evaluatedBy</th>
+                                                                            <th class="border p-1 text-center">feedback</th>
+                                                                            <th class="border p-1 text-center">Date</th>
+                                                                            <th class="border p-1 text-center">score</th>
+                                                                        </tr>
+                                                                        @foreach (var eva in memEva["evaluations"])
+                                                                        {
+                                                                            <tr>
+                                                                                <td class="border p-1 ">@eva["evaluatedBy"]</td>
+                                                                                <td class="border p-1 ">@eva["feedback"]</td>
+                                                                                <td class="border p-1">25/01/25</td>
+                                                                                <td class="border p-1 ">@eva["score"]</td>
+                                                                            </tr>
+                                                                        }
+                                                                    </table>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <p class="text-center">Members Not Evaluated</p>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <h4>Members Evaluations not available</h4>
+                                            }
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <h3 class="text-center">Projects Not Available</h3>
+                }
+            </div>
+        </div>
+    </div>
+}

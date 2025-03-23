@@ -1,0 +1,202 @@
+﻿@{
+    Layout = "~/Areas/Faculty/Views/Shared/_Layout.cshtml";
+}
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<div class="content">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-checkbox-marked-outline"></i> @Html.Raw(TempData["Message"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-alert"></i>@Html.Raw(TempData["Error"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+
+    <div class="card card-default">
+        <div class="card-header align-items-center">
+            <h2 class="">Tasks</h2>
+        </div>
+        <div class="row px-5 d-flex justify-content-between">
+            <div class="col-4">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search...">
+            </div>
+            <div class="col-4 d-flex justify-content-end align-items-center" style="gap: 10px;">
+                <a asp-action="TaskAddEdit"><button type="button" class="mb-1 btn btn-info">Add Tasks</button></a>
+                <button type="button" class="mb-1 btn btn-success" data-toggle="modal" data-target="#exampleModalTooltip">Import Excel</button>
+                <div class="modal fade" id="exampleModalTooltip" tabindex="-1" role="dialog" aria-labelledby="exampleModalTooltip"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLongTitle2">Important</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                Content
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary btn-pill" data-dismiss="modal">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="table-responsive">
+                    @if (ViewBag.TasksList == null || ViewBag.Error != null)
+                    {
+                        <h3 class="text-center p-3"> TasksList Not Available <a asp-action="StudentAddEdit">Add TasksList</a></h3>
+                    }
+                    else
+                    {
+                        <table id="product-sale" class="table table-product" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Task title</th>
+                                    <th>priority</th>
+                                    <th>status</th>
+                                    @* <th>created By</th> *@
+                                    <th>assigned To</th>
+                                    @* <th>deadline</th> *@
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="taskTableBody">
+                                @foreach (var tasks in ViewBag.TasksList)
+                                {
+                                    @if (tasks["createdByNavigation"]["userId"] == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+                                    {
+                                        <tr>
+                                            <td>@tasks["project"]["title"]</td>
+                                            <td>@tasks["title"]</td>
+                                            <td>
+                                                @if (@tasks["priority"] == "High")
+                                                {
+                                                    <span class="badge badge-danger">High</span>
+                                                }
+                                                else if (@tasks["priority"] == "Medium")
+                                                {
+                                                    <span class="badge badge-info">Medium</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-light">Low</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (@tasks["status"] == "Completed")
+                                                {
+                                                    <span class="badge badge-success">Completed</span>
+                                                }
+                                                else if (@tasks["status"] == "In Progress")
+                                                {
+                                                    <span class="badge badge-primary">In Progress</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-warning">Pending</span>
+                                                }
+                                            </td>
+                                            @* <td>@tasks["createdByNavigation"]["firstName"] @tasks["createdByNavigation"]["lastName"]</td> *@
+                                            <td>@tasks["assignedToNavigation"]["user"]["firstName"] @tasks["assignedToNavigation"]["user"]["lastName"]</td>
+                                            @* <td>@tasks["deadline"]</td> *@
+                                            <td>
+                                                <span class="badge badge-danger" type="button" data-toggle="modal" data-target="#@tasks["taskId"]"><span style="font-size:15px;" class="mdi mdi-delete"></span></span>
+                                                <a asp-action="TaskAddEdit" asp-route-taskId=@tasks["taskId"]><span class="badge badge-warning" type="button"><span style="font-size:15px;" class="mdi mdi-pencil"></span></span></a>
+                                                <span class="badge badge-success" type="button" type="button" data-toggle="modal" data-target="#view-@tasks["taskId"]"><span style="font-size:15px;" class="mdi mdi-eye"></span></span>
+
+                                                @* Delete Model *@
+                                                <div class="modal fade" id=@tasks["taskId"] tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                                     aria-hidden="true">
+                                                    <div class="modal-dialog m-" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalLabel">@tasks["taskId"]</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">×</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                Are You Sure You Want To Delete Student
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-danger btn-pill" data-dismiss="modal">No</button>
+                                                                <a type="button" class="btn btn-primary btn-pill" asp-action="TaskDelete" asp-route-taskId=@tasks["taskId"]>Yes</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                @* View Model *@
+                                                <div class="modal fade" id="view-@tasks["taskId"]" tabindex="-1" role="dialog" aria-labelledby="exampleModalGrid"
+                                                     aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalGridTitle">@tasks["title"]</h5>
+                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">×</span>
+                                                                </button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="modal-body">
+                                                                    <p><span class="font-weight-bold">Description : </span> @tasks["description"]</p>
+                                                                    <p><span class="font-weight-bold">Priority : </span> @tasks["priority"]</p>
+                                                                    <p><span class="font-weight-bold">Status : </span> @tasks["status"]</p>
+                                                                    <p><span class="font-weight-bold">Deadline : </span> @tasks["deadline"]</p>
+                                                                    <p><span class="font-weight-bold">Project : </span> @tasks["project"]["title"]</p>
+                                                                    <p><span class="font-weight-bold">created By : </span> @tasks["createdByNavigation"]["firstName"] @tasks["createdByNavigation"]["lastName"]</p>
+                                                                    <p><span class="font-weight-bold">assigned To : </span> @tasks["assignedToNavigation"]["user"]["firstName"] @tasks["assignedToNavigation"]["user"]["lastName"]</p>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-danger btn-pill" data-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function () {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#taskTableBody tr');
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+</script>

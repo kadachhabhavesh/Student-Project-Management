@@ -1,0 +1,186 @@
+﻿@model StudentProjectManagement.Areas.Admin.Models.Task
+
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-checkbox-marked-outline"></i> @Html.Raw(TempData["Message"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-alert"></i>@Html.Raw(TempData["Error"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    <div class="card card-default p-5">
+        <h2 class="mb-5 text-center">Add Task</h2>
+        <!-- Form targeting a specific action -->
+        <form asp-action="SaveTask" method="post">
+            <div class="">
+                <input type="hidden" asp-for="TaskId" />
+
+                <div class="form-group row">
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Title" class="form-label">Title<span class="text-danger">*</span></label>
+                        <input asp-for="Title" class="form-control" placeholder="Title" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="Description" class="form-label">Description<span class="text-danger">*</span></label>
+                        <textarea asp-for="Description" class="form-control" placeholder="Description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <!-- Project Dropdown -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="ProjectId" class="form-label">Project<span class="text-danger">*</span></label>
+                        <select asp-for="ProjectId" class="form-control" id="projectDropdown">
+                            <option value="">Select Project</option>
+                            @foreach (var project in ViewBag.TasksList)
+                            {
+                                <option value="@project["projectId"]">@project["title"]</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ProjectId" class="text-danger"></span>
+                    </div>
+
+                    <!-- Assigned To Dropdown (initially disabled) -->
+                    <div class="col-md-6 mb-3">
+                        <label asp-for="AssignedTo" class="form-label">Assigned To<span class="text-danger">*</span></label>
+                        <select asp-for="AssignedTo" class="form-control" id="assignedToDropdown" disabled>
+                            <option value="">Select Assigned Member</option>
+                        </select>
+                        <span asp-validation-for="AssignedTo" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Priority" class="form-label">Priority<span class="text-danger">*</span></label>
+                        <select asp-for="Priority" class="form-control">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                        </select>
+                        <span asp-validation-for="Priority" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Status" class="form-label">Status<span class="text-danger">*</span></label>
+                        <select asp-for="Status" class="form-control">
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4 mb-3">
+                        <label asp-for="Deadline" class="form-label">Deadline<span class="text-danger">*</span></label>
+                        <input asp-for="Deadline" type="date" class="form-control" placeholder="Deadline" />
+                        <span asp-validation-for="Deadline" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex g-2">
+                <button class="btn btn-primary btn-pill mr-2" type="submit">Submit</button>
+                <a asp-action="TaskList" class="btn btn-danger btn-pill mr-2" type="submit">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // Function to load the Assigned To dropdown based on the selected project
+        // and pre-select the member if a value is provided.
+        function loadAssignedToDropdown(projectId, selectedAssigned) {
+            var assignedToDropdown = $('#assignedToDropdown');
+            // Clear previous options and add the default option.
+            assignedToDropdown.empty();
+            assignedToDropdown.append($('<option>', {
+                value: '',
+                text: 'Select Assigned Member'
+            }));
+
+            if (projectId) {
+                $.ajax({
+                    url: 'http://localhost:5223/api/Project/ProjectMembers/' + projectId,
+                    type: 'GET',
+                    dataType: 'json',
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    success: function (data) {
+                        if (data && data.length > 0) {
+                            $.each(data, function (index, member) {
+                                var enrollment = member.student.enrollmentNo;
+                                var firstName = member.student.user.firstName;
+                                var lastName = member.student.user.lastName;
+                                var optionText = enrollment + ' - ' + firstName + ' ' + lastName;
+                                // Check if this member should be pre-selected.
+                                var isSelected = member.student.studentId == selectedAssigned;
+                                assignedToDropdown.append($('<option>', {
+                                    value: member.student.studentId,
+                                    text: optionText,
+                                    selected: isSelected
+                                }));
+                            });
+                            assignedToDropdown.prop('disabled', false);
+                        } else {
+                            assignedToDropdown.prop('disabled', true);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('Error fetching project members: ' + error);
+                        assignedToDropdown.prop('disabled', true);
+                    }
+                });
+            } else {
+                assignedToDropdown.prop('disabled', true);
+            }
+        }
+
+        // When the Project dropdown changes, load the corresponding Assigned To dropdown.
+        $('#projectDropdown').on('change', function () {
+            var projectId = $(this).val();
+            // When the user manually changes the project, no pre-selected member.
+            loadAssignedToDropdown(projectId, '');
+        });
+
+        // On page load, if editing an existing task, pre-load the Assigned To dropdown.
+        var initialProjectId = '@(Model != null ? Model.ProjectId.ToString() : "")';
+        var initialAssignedTo = '@(Model != null ? Model.AssignedTo.ToString() : "")';
+        if (initialProjectId) {
+            // Set the Project dropdown to the existing value.
+            $('#projectDropdown').val(initialProjectId);
+            // Load Assigned To options and pre-select the existing AssignedTo value.
+            loadAssignedToDropdown(initialProjectId, initialAssignedTo);
+        }
+    });
+</script>
+
+
+

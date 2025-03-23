@@ -1,0 +1,134 @@
+﻿@{
+    Layout = "~/Areas/Faculty/Views/Shared/_Layout.cshtml";
+}
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+<script>
+    function searchProjects() {
+        let input = document.getElementById("searchInput").value.toLowerCase();
+        let projectCards = document.querySelectorAll(".card.p-3.mb-2");
+
+        projectCards.forEach(card => {
+            let title = card.querySelector("h4").innerText.toLowerCase();
+            let description = card.querySelector("p").innerText.toLowerCase();
+
+            if (title.includes(input) || description.includes(input)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+</script>
+
+<div class="content">
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-checkbox-marked-outline"></i> @Html.Raw(TempData["Message"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-icon m-4 d-flex justify-content-between" role="alert">
+            <div>
+                <i class="mdi mdi-alert"></i>@Html.Raw(TempData["Error"])
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+    }
+
+    <div class="d-flex justify-content-between px-1 mb-2">
+        <h3 class=" p-1">Projects</h3>
+        <input type="text" class="form-control mb-3 w-50" id="searchInput" placeholder="Search Projects..." onkeyup="searchProjects()">
+        <div>
+            <a asp-action="ProjectAddEdit"><button type="button" class="mb-1 btn btn-info">Add Project</button></a>
+            <button type="button" class="mb-1 btn btn-success" data-toggle="modal" data-target="#exampleModalTooltip">Import Excel</button>
+            <div class="modal fade" id="exampleModalTooltip" tabindex="-1" role="dialog" aria-labelledby="exampleModalTooltip"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle2">Important</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Content
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary btn-pill" data-dismiss="modal">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (ViewBag.ProjectList != null && ViewBag.ProjectList.Count > 0)
+    {
+        @foreach (var project in ViewBag.ProjectList)
+        {
+            @if (project["mentor"]["userId"] == HttpContextAccessor.HttpContext.Session.GetString("UserId"))
+            {
+                <div class="card p-3 mb-2" role="button">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="d-flex align-items-center">
+                                <h4 class="my-1">@project["title"]</h4>
+                                @if (@project["status"] == "Completed")
+                                {
+                                    <span class="px-2"> <span class="badge badge-success">Completed</span></span>
+                                }
+                                else if (@project["status"] == "Active")
+                                {
+                                    <span class="px-2"><span class="badge badge-primary">Active</span></span>
+                                }
+                                else
+                                {
+                                    <span class="px-2"><span class="badge badge-warning">Pending</span></span>
+                                }
+                            </div>
+                            <p>@project["description"]<p>
+                        </div>
+                        <div class="ml-3" style="min-width:120px;">
+                            <span class="badge badge-danger" type="button" data-toggle="modal" data-target="#@project["projectId"]"><span style="font-size:15px;" class="mdi mdi-delete"></span></span>
+                            <a asp-action="ProjectAddEdit" asp-route-projectId="@project["projectId"]"><span class="badge badge-warning" type="button"><span style="font-size:15px;" class="mdi mdi-pencil"></span></span></a>
+                            <a asp-action="ProjectDetails" asp-route-projectId="@project["projectId"]"><span class="badge badge-success" type="button"><span style="font-size:15px;" class="mdi mdi-eye"></span></span></a>
+                            <div class="modal fade" id="@project["projectId"]" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                                 aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel"></h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">×</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            Are You Sure You Want To Delete Project
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger btn-pill" data-dismiss="modal">No</button>
+                                            <a type="button" class="btn btn-primary btn-pill" asp-action="ProjectDelete" asp-route-projectId=@project["projectId"]>Yes</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <h4 class="text-center">Project Not Available</h4>
+    }
+</div>

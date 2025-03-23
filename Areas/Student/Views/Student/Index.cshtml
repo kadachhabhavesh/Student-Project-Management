@@ -1,0 +1,346 @@
+﻿@using Newtonsoft.Json.Linq
+<div class="content-wrapper">
+    <!-- cards --> 
+    <div class="content">
+        <div class="row">
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-success rounded-circle mb-2">
+                            <i class="mdi mdi-react"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["projects"]["compeleteProjects"]</span>
+                            <p>Complete Project</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-primary rounded-circle mb-2">
+                            <i class="mdi mdi-react"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["projects"]["activeProjects"]</span>
+                            <p>Active Project</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-warning rounded-circle mb-2">
+                            <i class="mdi mdi-react"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["projects"]["pendingProjects"]</span>
+                            <p>Pending Project</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-success rounded-circle mb-2">
+                            <i class="mdi mdi-table-edit"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["tasks"]["compeleteTask"]</span>
+                            <p>Complete Task</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-primary rounded-circle mb-2">
+                            <i class="mdi mdi-table-edit"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["tasks"]["inProgressTask"]</span>
+                            <p>In Progress Task</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-md-6">
+                <div class="card card-default">
+                    <div class="d-flex p-5 align-items-center flex-column">
+                        <div class="icon-md bg-warning rounded-circle mb-2">
+                            <i class="mdi mdi-table-edit"></i>
+                        </div>
+                        <div class="text-center">
+                            <span class="h2 d-block">@ViewBag.Dashboard["tasks"]["pendingTask"]</span>
+                            <p>Pending Task</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            
+            <div class="col-xl-6">
+                <div class="card card-default">
+                    <div class="card-header align-items-center">
+                        <h2 class="">Projects Due Today</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Add a scrollable container for the table -->
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                @if (((Newtonsoft.Json.Linq.JArray)ViewBag.Dashboard["projectsDueToday"]).HasValues)
+                                {
+                                    <table id="product-sale" class="table table-product" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Project Title</th>
+                                                <th>Mentor</th>
+                                                <th>startDate</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var project in ViewBag.DashBoard["projectsDueToday"])
+                                            {
+                                                <tr>
+                                                    <td>@project["title"]</td>
+                                                    <td>@project["mentor"]["user"]["firstName"] @project["mentor"]["user"]["firstName"]</td>
+                                                    <td>@project["startDate"]</td>
+                                                    <td>
+                                                        @if (@project["status"] == "Completed")
+                                                        {
+                                                            <span class="badge badge-success">Completed</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-danger">Delayed</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
+                                else
+                                {
+                                    <h5>No Project due today.</h5>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6">
+                <div class="card card-default">
+                    <div class="card-header border-bottom">
+                        <h2 class="mdi mdi-desktop-mac">Projects</h2>
+                    </div>
+                    <div class="card-body pt-6">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <canvas id="donutChart" width="200" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        <div class="row">
+            <div class="col-xl-8">
+                <div class="card card-default">
+                    <div class="card-header align-items-center">
+                        <h2 class="">Task Due Today</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Add a scrollable container for the table -->
+                            <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                                @if (ViewBag.Dashboard["tasksDueToday"] != null && ViewBag.Dashboard["tasksDueToday"].Count > 0)
+                                {
+                                    <table id="product-sale" class="table table-product" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Task Name</th>
+                                                <th>Member</th>
+                                                <th>Project</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var task in ViewBag.Dashboard["tasksDueToday"])
+                                            {
+                                                <tr>
+                                                    <td>@task["title"]</td>
+                                                    <td>@task["assignedToNavigation"]["user"]["firstName"]</td>
+                                                    <td>@task["project"]["title"]</td>
+                                                    <td>
+                                                        @if (@task["status"] == "Completed")
+                                                        {
+                                                            <span class="badge badge-success">Completed</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge badge-danger">Delayed</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+
+                                            }
+                                        </tbody>
+
+                                    </table>
+                                }
+                                else
+                                {
+                                    <h5>No tasks due today.</h5>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="card card-default todo-table pb-1" id="todo">
+                    <div class="card-header">
+                        <h2>To Do List</h2>
+                        <a class="btn btn-primary btn-pill" id="add-task" href="#" role="button"> Add task </a>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+               
+                <div class="card card-default">
+                    <div class="card-header align-items-center">
+                        <h2 class="">Top Projects</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!-- Add a scrollable container for the table -->
+                            <div class="table-responsive">
+                                <table id="product-sale" class="table table-product" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                           
+                                            <th>Project Title</th>
+                                            <th>Description</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Mentor Name</th>
+                                            <th>Avg Score</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var project in ViewBag.Dashboard["topProjects"])
+                                        {
+                                            <tr>
+                                                <td>@project["projectTitle"]</td>
+                                                <td>
+                                                    @(project["description"].ToString().Length > 20
+                                                        ? project["description"].ToString().Substring(0, 20) + "..."
+                                                        : project["description"])
+                                                </td>
+                                                <td>@project["startDate"]</td>
+                                                <td>@project["endDate"]</td>
+                                                <td>@project["mentor"]</td>
+                                                <td>@project["averageScore"]</td>
+                                                <td>
+                                                    @if (project["status"] == "Completed")
+                                                    {
+                                                        <span class="badge badge-success">Completed</span>
+                                                    }
+                                                    @if (project["status"] == "Pending")
+                                                    {
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    }
+                                                    @if (project["status"] == "Active")
+                                                    {
+                                                        <span class="badge badge-primary">Active</span>
+                                                    }
+                                                </td>
+                                            </tr>
+
+                                        }
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var completeProjects = @ViewBag.Dashboard["projects"]["compeleteProjects"];
+        var activeProjects = @ViewBag.Dashboard["projects"]["activeProjects"];
+        var pendingProjects = @ViewBag.Dashboard["projects"]["pendingProjects"];
+
+        var dataValues = [completeProjects, activeProjects, pendingProjects];
+        var total = dataValues.reduce((sum, value) => sum + value, 0);
+
+        var ctx = document.getElementById('donutChart').getContext('2d');
+        var donutChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Complete', 'Active', 'Pending'],
+                datasets: [{
+                    data: dataValues,
+                    backgroundColor: ['#0ACB8E', '#9E6DE0', '#FEC400'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            generateLabels: function (chart) {
+                                return chart.data.labels.map(function (label, i) {
+                                    var value = chart.data.datasets[0].data[i];
+                                    var percentage = ((value / total) * 100).toFixed(1) + "%";
+                                    return {
+                                        text: `${label}: ${percentage}`,
+                                        fillStyle: chart.data.datasets[0].backgroundColor[i],
+                                        hidden: isNaN(value),
+                                    };
+                                });
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (tooltipItem) {
+                                var value = tooltipItem.raw;
+                                var percentage = ((value / total) * 100).toFixed(1) + "%";
+                                return `${tooltipItem.label}: ${value} (${percentage})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+
+
+    //___________________ TODO __________________________
+</script>

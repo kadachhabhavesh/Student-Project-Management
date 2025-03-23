@@ -1,0 +1,175 @@
+﻿@model StudentProjectManagement.Areas.Admin.Models.Task
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="content">
+    <div class="card card-default p-5">
+        <h2 class="mb-5 text-center">Add Team Members</h2>
+        <div class="row">
+            <!-- Left-side list of all students -->
+            <div class="col-md-6">
+                <h4 class="my-3">Available Students</h4>
+                <div id="available-students" class="list-group" style="max-height: 300px; overflow-y: auto;">
+                    @foreach (var student in ViewBag.StudentList)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@student["user"]["firstName"] @student["user"]["lastName"] (@student["enrollmentNo"])</span>
+                            <button class="btn btn-sm btn-primary add-student"
+                                    data-id="@student["studentId"]"
+                                    data-name="@student["user"]["firstName"] @student["user"]["lastName"]"
+                                    data-enrollment="@student["enrollmentNo"]">
+                                Add
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Right-side list of selected students -->
+            <div class="col-md-6">
+                <h4 class="class= my-3">Selected Team Members</h4>
+                <div id="selected-students" class="list-group" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Selected students will appear here -->
+                    @foreach (var student in @ViewBag.ProjectStudentList)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@student["student"]["user"]["firstName"] @student["student"]["user"]["lastName"] (@student["student"]["enrollmentNo"])</span>
+                            <button class="btn btn-sm btn-danger remove-student">Remove</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <form asp-action="AssignTeamMembers" method="post">
+            <input type="hidden" id="selected-members" name="SelectedMembers" value="" />
+            <button id="SaveTeamMembers" type="button" class="btn btn-primary mt-4">Save Team Members</button>
+        </form>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+    
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const availableStudents = document.getElementById('available-students');
+        const selectedStudents = document.getElementById('selected-students');
+        const selectedMembersInput = document.getElementById('selected-members');
+        var selectedStudentsId = [];
+
+        @foreach (var student in ViewBag.ProjectStudentList)
+        {
+            <text>selectedStudentsId.push(@student["studentId"]);</text>
+        }
+
+        const updateSelectedMembers = () => {
+            const selectedIds = Array.from(selectedStudents.querySelectorAll('.list-group-item')).map(item => item.dataset.id);
+            selectedMembersInput.value = selectedIds.join(',');
+        };
+
+        availableStudents.addEventListener('click', function (event) {
+            if (event.target.classList.contains('add-student')) {
+                const id = event.target.dataset.id;
+                const name = event.target.dataset.name;
+                const enrollment = event.target.dataset.enrollment;
+
+                // Create a new item for the selected list
+                const selectedItem = document.createElement('div');
+                selectedItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                selectedItem.dataset.id = id;
+                selectedItem.innerHTML = `<span>${name} (${enrollment})</span> <button class="btn btn-sm btn-danger remove-student">Remove</button>`;
+
+                // Add the item to the selected list    
+                selectedStudents.appendChild(selectedItem);
+
+                // Remove the item from the available list
+                event.target.closest('.list-group-item').remove();
+
+                updateSelectedMembers();
+
+                selectedStudentsId.push(parseInt(id));
+                console.log(selectedStudentsId)
+            }
+        });
+
+        selectedStudents.addEventListener('click', function (event) {
+            if (event.target.classList.contains('remove-student')) {
+                const selectedItem = event.target.closest('.list-group-item');
+                const id = selectedItem.dataset.id;
+                const name = selectedItem.querySelector('span').textContent.split(' (')[0];
+                const enrollment = selectedItem.querySelector('span').textContent.split(' (')[1].replace(')', '');
+
+                // Create a new item for the available list
+                const availableItem = document.createElement('div');
+                availableItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                availableItem.innerHTML = `<span>${name} (${enrollment})</span> <button class="btn btn-sm btn-primary add-student" data-id="${id}" data-name="${name}" data-enrollment="${enrollment}">Add</button>`;
+
+                // Add the item back to the available list
+                availableStudents.appendChild(availableItem);
+
+                // Remove the item from the selected list
+                selectedItem.remove();
+
+                updateSelectedMembers();
+
+                selectedStudentsId.splice(selectedStudentsId.indexOf(parseInt(id)),1)
+                console.log(selectedStudentsId)
+            }
+        });
+
+
+        function saveTeamMembers() {
+            var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
+            if (selectedStudentsId.length < 0)
+            {
+                alert("select at least one student")
+            }
+            else{
+                // if (@ViewBag.Edit == 0) {
+                    const queryString = `?projectId=${@ViewBag.ProjectId }&membersIds=${selectedStudentsId.join(',')}`;
+                    $.ajax({
+                    headers: {
+                        "Authorization": "Bearer " + token
+                    },
+                    url: `http://localhost:5223/api/TeamMember/UpdateTeamMembers${queryString}`,
+                        type: "PUT",
+                        contentType: "application/json",
+                        success: function (response) {
+                            window.location.href = `/Admin/Project/ProjectDetails?projectId=${@ViewBag.ProjectId}`;
+                        },
+                        error: function (xhr, status, error) { 
+                            console.error("Error:", error);
+                        }
+                    });
+                    
+                // } else {
+                //     const queryString = `?projectId=${@ViewBag.ProjectId }`;
+                //     $.ajax({
+                //         url: `http://localhost:5223/api/TeamMember/saveTeamMembers${queryString}`,
+                //         type: "POST",
+                //         contentType: "application/json",
+                //         success: function (response) {
+                //             alert("Team members saved successfully!");
+                //         },
+                //         error: function (xhr, status, error) {
+                //             console.error("Error:", error);
+                //         }
+                //     });
+                // }
+            }
+            
+        }
+
+        // Call the function on button click
+        $(document).ready(function () {
+            $("#SaveTeamMembers").click(function () {
+                saveTeamMembers();
+            });
+        });
+    });
+</script>
