@@ -571,11 +571,15 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
     $(document).ready(function () {
         $.ajax({
             url: "http://localhost:5223/api/Faculty", // API URL
             type: "GET",
             dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
             success: function (data) {
                 var dropdown = $("#FacultyId"); // Target dropdown
                 dropdown.empty(); // Clear existing options
@@ -590,15 +594,10 @@
             },
             error: function (xhr, status, error) {
                 console.error("Error fetching data:", error);
-                alert("Failed to load evaluators. Please try again.");
             }
         });
     });
-</script>
 
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
     $(document).ready(function () {
         $(".edit-evaluation").click(function () {
             var evaluationId = $(this).data("id"); // Get EvaluationId from button
@@ -609,6 +608,9 @@
                 url: apiUrl,
                 type: "GET",
                 dataType: "json",
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
                 success: function (data) {
                     // Fill the form with fetched data
                     $("#EvaluationId").val(data.evaluationId);
@@ -627,16 +629,15 @@
             });
         });
     });
-</script>
 
-
-
-<script>
     $(document).ready(function () {
         $.ajax({
             url: "http://localhost:5223/api/Project/ProjectMembers/" + @ViewBag.Project["projectId"],
             type: "GET",
             dataType: "json",
+            headers: {
+                "Authorization": "Bearer " + token
+            },
             success: function (data) {
                 let dropdown = $("#AssignedTo");
                 dropdown.empty().append('<option value="">Select Member</option>');
@@ -653,12 +654,8 @@
             }
         });
     });
-</script>
 
-
-<script>
     $(document).ready(function () {
-        var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
         $(".edit-task").click(function () {
             var taskId = $(this).data("id");
             var apiUrl = `http://localhost:5223/api/Task/${taskId}`;
@@ -701,22 +698,17 @@
             console.log("Submitting FacultyId:", $("#FacultyId").val());
         });
     });
-</script>
 
-
-
-    <script>
         $(document).ready(function () {
-        var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
         let projectId = document.getElementById("ProjectId").value
             // Load students for the project
             $.ajax({
             url: `http://localhost:5223/api/Project/ProjectMembers/${projectId}`,
                 type: "GET",
                 dataType: "json",
-            headers: {
-                "Authorization": "Bearer " + token
-            },
+                headers: {
+                    "Authorization": "Bearer " + token
+                },
                 success: function (data) {
                 let studentDropdown = $("#SEStudentId");
                     studentDropdown.empty().append('<option value="">Select Student</option>');
@@ -751,14 +743,8 @@
                 }
             });
         });
-    </script>
 
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
     $(document).ready(function () {
-        var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
         $(".edit-student-evaluation").click(function () {
             var evaluationId = $(this).data("evaluation-id"); // Get Student Evaluation ID
 

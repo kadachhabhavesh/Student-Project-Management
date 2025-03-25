@@ -1,4 +1,5 @@
 ﻿@model StudentProjectManagement.Areas.Admin.Models.Task
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
@@ -113,18 +114,14 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-
-        // Function to load the Assigned To dropdown based on the selected project
-        // and pre-select the member if a value is provided.
         function loadAssignedToDropdown(projectId, selectedAssigned) {
             var assignedToDropdown = $('#assignedToDropdown');
-            // Clear previous options and add the default option.
             assignedToDropdown.empty();
             assignedToDropdown.append($('<option>', {
                 value: '',
                 text: 'Select Assigned Member'
             }));
-
+            var token = "@HttpContextAccessor.HttpContext.Session.GetString("Token")";
             if (projectId) {
                 $.ajax({
                     url: 'http://localhost:5223/api/Project/ProjectMembers/' + projectId,
@@ -140,7 +137,6 @@
                                 var firstName = member.student.user.firstName;
                                 var lastName = member.student.user.lastName;
                                 var optionText = enrollment + ' - ' + firstName + ' ' + lastName;
-                                // Check if this member should be pre-selected.
                                 var isSelected = member.student.studentId == selectedAssigned;
                                 assignedToDropdown.append($('<option>', {
                                     value: member.student.studentId,
@@ -163,20 +159,15 @@
             }
         }
 
-        // When the Project dropdown changes, load the corresponding Assigned To dropdown.
         $('#projectDropdown').on('change', function () {
             var projectId = $(this).val();
-            // When the user manually changes the project, no pre-selected member.
             loadAssignedToDropdown(projectId, '');
         });
 
-        // On page load, if editing an existing task, pre-load the Assigned To dropdown.
         var initialProjectId = '@(Model != null ? Model.ProjectId.ToString() : "")';
         var initialAssignedTo = '@(Model != null ? Model.AssignedTo.ToString() : "")';
         if (initialProjectId) {
-            // Set the Project dropdown to the existing value.
             $('#projectDropdown').val(initialProjectId);
-            // Load Assigned To options and pre-select the existing AssignedTo value.
             loadAssignedToDropdown(initialProjectId, initialAssignedTo);
         }
     });

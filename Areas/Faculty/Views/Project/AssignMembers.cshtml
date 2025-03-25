@@ -132,6 +132,7 @@
             else {
                 // if (@ViewBag.Edit == 0) {
                 const queryString = `?projectId=${@ViewBag.ProjectId }&membersIds=${selectedStudentsId.join(',')}`;
+                console.log(`http://localhost:5223/api/TeamMember/UpdateTeamMembers${queryString}`);
                 $.ajax({
                     url: `http://localhost:5223/api/TeamMember/UpdateTeamMembers${queryString}`,
                     type: "PUT",
@@ -146,21 +147,6 @@
                         console.error("Error:", error);
                     }
                 });
-
-                // } else {
-                //     const queryString = `?projectId=${@ViewBag.ProjectId }`;
-                //     $.ajax({
-                //         url: `http://localhost:5223/api/TeamMember/saveTeamMembers${queryString}`,
-                //         type: "POST",
-                //         contentType: "application/json",
-                //         success: function (response) {
-                //             alert("Team members saved successfully!");
-                //         },
-                //         error: function (xhr, status, error) {
-                //             console.error("Error:", error);
-                //         }
-                //     });
-                // }
             }
 
         }
